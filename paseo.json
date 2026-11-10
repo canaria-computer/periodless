@@ -1,0 +1,10 @@
+{
+  "metadataGeneration": {
+    "commitMessage": {
+      "instructions": "- スコープ付きConventional Commitsを使う\n- 1行で終わるBodyなし\n"
+    },
+    "pullRequest": {
+      "instructions": "Conventional CommitsのBodyをつけた内容\n承認者の承認に必要な情報のみを使う"
+    }
+  }
+}
