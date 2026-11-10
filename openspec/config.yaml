@@ -1,0 +1,20 @@
+schema: spec-driven
+
+context: |
+  Project: Periodless (Rust edition 2024)
+  Domain: 紙の複式簿記（日商簿記3級範囲・2022年度改定基準）をそのままデジタル化する会計コアライブラリ。
+  Key Documents:
+    - README.md: アーキテクチャ思想（不変履歴、導出ビュー、Port/Adapter分離、Agentic TDD）
+    - docs/README.md: 製品仕様・受入条件
+    - CONTRIBUTING.md: コーディング規約・基本用語対訳・Git/PRルール
+    - AGENTS.md: AIエージェント向け厳選ルール
+    - docs/勘定科目一覧/*.md: 勘定科目の日英識別子（UpperCamelCase / snake_case）対訳表
+  Core Principles & Coding Rules:
+    - 記帳済みの仕訳(JournalEntry)と伝票(Slip)は不変（Append-Only）。UPDATE/DELETEは持ち込まない。
+    - 財務諸表（GeneralJournal, IncomeStatement, BalanceSheet）はすべて不変履歴から導出されるビュー。
+    - 行コメント(//)は原則禁止（背景事情Whyの補足のみ例外）。公開APIには /// (rustdoc) と doctest を充実させる。
+    - 公開APIはフルーエントインターフェースとメソッドチェーンを中心に設計する。
+    - プロダクションコードの識別子は英語統一。汎用名(Data, Record, Item, Manager等)を禁止し、CONTRIBUTING.md と docs/勘定科目一覧/*.md の標準対訳を使用する。
+    - プロダクションコードでの unwrap, expect, panic!, todo!, unimplemented! および浮動小数点金額は禁止。Newtype と Result<T, E> で不変条件を表現する。
+    - Agentic TDD を実践し、#[test] 関数名には日本語識別子を推奨・許容する。
+    - Git Commit は Conventional Commits 1行完結（Bodyなし、日本語subject）。PRは1関心事・Whyのみの最小本文。
