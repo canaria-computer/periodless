@@ -18,9 +18,11 @@
 //! # Ok::<(), periodless_journal_dsl::SyntaxError>(())
 //! ```
 
+mod amount_overflow;
 mod description;
 mod grammar;
 mod syntax_error;
 
+pub use amount_overflow::AmountOverflow;
 pub use description::{DescribedDetail, JournalEntryDescription};
 pub use syntax_error::{SyntaxError, SyntaxViolation};

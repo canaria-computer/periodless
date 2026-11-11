@@ -1,3 +1,4 @@
+use crate::amount_overflow::AmountOverflow;
 use crate::grammar::{JournalEntryGrammar, Rule};
 use crate::syntax_error::{SyntaxError, SyntaxViolation};
 use pest::Parser;
@@ -36,6 +37,44 @@ impl DescribedDetail {
     /// 入力に現れたままの金額表現。
     pub fn amount_expression(&self) -> &str {
         &self.amount_expression
+    }
+
+    /// 金額表現が表す整数値。
+    ///
+    /// 金額表現から ASCII 数字以外を除去し、残った数字列を十進整数として解釈する。
+    /// 桁区切り文字は数値的な意味を持たないため、`1e3` は 13、`000` は 0 になる。
+    /// 金額表現は ASCII 数字で始まり ASCII 数字で終わる構文上の制約を持ち、符号文字も
+    /// 除去されるため、負の値が得られることはない。
+    ///
+    /// 得られる整数は金額表現が表す数そのものであり、通貨および最小通貨単位の意味を
+    /// 持たない。単位を伴う金額型への詰め替えは利用側の責務とする。
+    ///
+    /// # Errors
+    ///
+    /// 構文解析は金額表現の桁数に上限を設けないため、整数が `i64` の範囲に
+    /// 収まらない場合に [`AmountOverflow`] を返す。
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use periodless_journal_dsl::JournalEntryDescription;
+    ///
+    /// let description = JournalEntryDescription::parse("現金 1,0;00 /\n")?;
+    /// let debit = description.debits().next().ok_or("借方明細が存在しない")?;
+    ///
+    /// assert_eq!(debit.amount_as_integer()?, 1000);
+    /// # Ok::<(), Box<dyn std::error::Error>>(())
+    /// ```
+    pub fn amount_as_integer(&self) -> Result<i64, AmountOverflow> {
+        let digits: String = self
+            .amount_expression
+            .chars()
+            .filter(|character| character.is_ascii_digit())
+            .collect();
+
+        digits
+            .parse()
+            .map_err(|_| AmountOverflow::new(&self.amount_expression))
     }
 }
 
