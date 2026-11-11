@@ -219,3 +219,54 @@ mod tests {
     ブランチを作成して元の作業ブランチ向けの整形用 PR
     を1件のみ作成・更新します。PR 作成者がその整形用 PR
     を取り込むことでフォーマットチェックを通過させることができます。
+
+### Rust 検証 CI（必須チェック）
+
+- **独立したワークフロー**: Rust
+  コードの検証は、ドキュメント整形系のワークフローとは独立した
+  `.github/workflows/rust.yml`（ワークフロー名
+  `Rust`）で実行します。読み取り専用権限（`contents: read`）で動作し、fork
+  からの PR でも同一の検証が走ります。
+- **ジョブと責務**:
+  - `cargo test`: `cargo test --workspace --all-targets` と `cargo test --doc`
+    を実行し、単体・統合テストと doctest を検証します。
+  - `cargo clippy`: `cargo clippy --workspace --all-targets -- -D warnings`
+    を実行し、lint 警告を1件も許容しません。
+  - `cargo fmt --check`: `cargo fmt --all -- --check` を実行し、Rust
+    ソースの整形を検証します。
+- **コミット前のローカル検証**: Rust
+  コードを変更した場合は、以下の4コマンドがすべて成功することをコミット前に確認してください。
+
+  ```bash
+  cargo test --workspace --all-targets
+  cargo test --doc
+  cargo clippy --workspace --all-targets -- -D warnings
+  cargo fmt --all -- --check
+  ```
+
+  `cargo clippy` の警告は `allow`
+  属性で抑制せず、コード側を修正して0件にします。
+
+### `main` ブランチのマージ前チェック設定（リポジトリ管理者向け）
+
+ブランチ保護はワークフローファイルでは表現できないため、GitHub
+側で以下を設定します（`Settings > Rules > Rulesets`、または
+`Settings > Branches` のブランチ保護）。
+
+1. 対象ブランチを `main` にしたルールセットを作成します。
+2. **Require a pull request before merging** を有効にします。
+3. **Require status checks to pass before merging**
+   を有効にし、必須チェックとして次の4件を登録します。
+   - `cargo test`
+   - `cargo clippy`
+   - `cargo fmt --check`
+   - `deno fmt --check`
+
+必須ステータスチェックは**ジョブ名**で登録されるため、登録済みのジョブ名（`cargo test`
+/ `cargo clippy` / `cargo fmt --check` /
+`deno fmt --check`）は変更しないでください。やむを得ず変更する場合は、ルールセットの登録名も同時に更新します（更新しないと旧名のチェックが永久に未完了となり、すべての
+PR がマージ不能になります）。
+
+また、Rust 検証ワークフローには `paths`
+フィルタを設定しません。パスで起動を絞ると、ドキュメントのみを変更した PR
+で必須チェックが未実行のまま保留され、マージがブロックされるためです。
