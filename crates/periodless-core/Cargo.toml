@@ -1,0 +1,6 @@
+[package]
+name = "periodless-core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
