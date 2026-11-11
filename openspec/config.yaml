@@ -17,4 +17,5 @@ context: |
     - プロダクションコードの識別子は英語統一。汎用名(Data, Record, Item, Manager等)を禁止し、CONTRIBUTING.md と docs/勘定科目一覧/*.md の標準対訳を使用する。
     - プロダクションコードでの unwrap, expect, panic!, todo!, unimplemented! および浮動小数点金額は禁止。Newtype と Result<T, E> で不変条件を表現する。
     - Agentic TDD を実践し、#[test] 関数名には日本語識別子を推奨・許容する。
-    - Git Commit は Conventional Commits 1行完結（Bodyなし、日本語subject）。PRは1関心事・Whyのみの最小本文。
+    - Git Commit はスコープ付き Conventional Commits 1行完結（Bodyなし、日本語subject）。PRは1関心事・Whyのみの最小本文。
+    - Markdown / YAML / JSON ファイルは deno fmt でフォーマットする。
