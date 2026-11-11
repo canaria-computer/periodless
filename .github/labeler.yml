@@ -1,0 +1,7 @@
+ci:
+  - ".github/workflows/**"
+  - ".github/labeler.yml"
+
+docs:
+  - "docs/**"
+  - "**/*.md"
