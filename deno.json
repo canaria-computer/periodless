@@ -1,0 +1,16 @@
+{
+  "fmt": {
+    "include": [
+      ".",
+      ".agents",
+      ".claude",
+      ".commandcode",
+      ".opencode",
+      ".github"
+    ],
+    "exclude": [
+      "target",
+      ".opencode/node_modules"
+    ]
+  }
+}

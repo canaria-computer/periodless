@@ -1,0 +1,153 @@
+name: Format PR Automation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - closed
+
+concurrency:
+  group: format-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cleanup-on-close:
+    name: Cleanup Format PR on Close
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !startsWith(github.event.pull_request.head.ref, 'automation/format-')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+    steps:
+      - name: Close format PR and delete branch if present
+        run: |
+          FORMAT_BRANCH="automation/format-pr-${PR_NUMBER}"
+          EXISTING_PR=$(gh pr list \
+            --repo "${GITHUB_REPOSITORY}" \
+            --head "${FORMAT_BRANCH}" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "${EXISTING_PR}" ]; then
+            gh pr close "${EXISTING_PR}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --comment "元の PR (#${PR_NUMBER}) が終了したため、この整形用 PR を自動で閉じます。"
+          fi
+
+          if git ls-remote --exit-code "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "refs/heads/${FORMAT_BRANCH}" >/dev/null 2>&1; then
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${FORMAT_BRANCH}" || true
+          fi
+
+  propose-format-pr:
+    name: Propose Format PR
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !startsWith(github.event.pull_request.head.ref, 'automation/format-')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      TARGET_BRANCH: ${{ github.event.pull_request.head.ref }}
+      TARGET_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout PR head commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run deno fmt and manage format PR
+        run: |
+          FORMAT_BRANCH="automation/format-pr-${PR_NUMBER}"
+          deno fmt
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No formatting changes needed."
+            EXISTING_PR=$(gh pr list \
+              --repo "${GITHUB_REPOSITORY}" \
+              --head "${FORMAT_BRANCH}" \
+              --state open \
+              --json number \
+              --jq '.[0].number // empty')
+
+            if [ -n "${EXISTING_PR}" ]; then
+              gh pr close "${EXISTING_PR}" \
+                --repo "${GITHUB_REPOSITORY}" \
+                --comment "元の PR (#${PR_NUMBER}) で未整形差分が解消されたため、この整形用 PR を自動で閉じます。"
+            fi
+
+            if git ls-remote --exit-code origin "refs/heads/${FORMAT_BRANCH}" >/dev/null 2>&1; then
+              git push origin --delete "${FORMAT_BRANCH}" || true
+            fi
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "${FORMAT_BRANCH}"
+          git add -A
+          git commit -m "style(format): deno fmtによる自動整形"
+
+          CURRENT_SHA=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')
+          CURRENT_STATE=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.state')
+
+          if [ "${CURRENT_STATE}" != "open" ]; then
+            echo "Original PR #${PR_NUMBER} is no longer open. Aborting."
+            exit 0
+          fi
+
+          if [ "${CURRENT_SHA}" != "${TARGET_SHA}" ]; then
+            echo "Head SHA changed from ${TARGET_SHA} to ${CURRENT_SHA} during formatting. Aborting stale update."
+            exit 0
+          fi
+
+          git push --force origin "HEAD:refs/heads/${FORMAT_BRANCH}"
+
+          PR_TITLE="style(format): PR #${PR_NUMBER} の自動整形"
+          PR_BODY=$(cat <<EOF
+          PR #${PR_NUMBER} で未整形のファイルが検出されたため、\`deno fmt\` による整形差分を提案します。
+          この PR を \`${TARGET_BRANCH}\` ブランチへマージすることで、元の PR のフォーマットチェックを通過させることができます。
+
+          - 関連 PR: #${PR_NUMBER}
+          - 整形元コミット SHA: \`${TARGET_SHA}\`
+          EOF
+          )
+
+          EXISTING_PR=$(gh pr list \
+            --repo "${GITHUB_REPOSITORY}" \
+            --head "${FORMAT_BRANCH}" \
+            --base "${TARGET_BRANCH}" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "${EXISTING_PR}" ]; then
+            gh pr edit "${EXISTING_PR}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "${PR_TITLE}" \
+              --body "${PR_BODY}"
+          else
+            gh pr create \
+              --repo "${GITHUB_REPOSITORY}" \
+              --base "${TARGET_BRANCH}" \
+              --head "${FORMAT_BRANCH}" \
+              --title "${PR_TITLE}" \
+              --body "${PR_BODY}"
+          fi
