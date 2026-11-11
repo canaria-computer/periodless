@@ -21,8 +21,10 @@
 mod amount_overflow;
 mod description;
 mod grammar;
+mod printer;
 mod syntax_error;
 
 pub use amount_overflow::AmountOverflow;
 pub use description::{DescribedDetail, JournalEntryDescription};
+pub use printer::JournalEntryPrinter;
 pub use syntax_error::{SyntaxError, SyntaxViolation};
