@@ -11,4 +11,9 @@ mod tests {
         let result = add(2, 2);
         assert_eq!(result, 4);
     }
+
+    #[test]
+    fn ci_failure_probe() {
+        assert_eq!(add(2, 2), 5);
+    }
 }
