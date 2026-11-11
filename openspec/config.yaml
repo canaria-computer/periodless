@@ -19,3 +19,4 @@ context: |
     - Agentic TDD を実践し、#[test] 関数名には日本語識別子を推奨・許容する。
     - Git Commit はスコープ付き Conventional Commits 1行完結（Bodyなし、日本語subject）。PRは1関心事・Whyのみの最小本文。
     - Markdown / YAML / JSON ファイルは deno fmt でフォーマットする。
+    - Rust コードの変更は cargo test --workspace --all-targets / cargo test --doc / cargo clippy --workspace --all-targets -- -D warnings / cargo fmt --all -- --check をローカルで通す。これらは .github/workflows/rust.yml の必須チェックとして main へのマージ前に強制される。

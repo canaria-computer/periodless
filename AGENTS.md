@@ -68,6 +68,15 @@ Rust 製会計コアライブラリです。 AI
     `unimplemented!()`, スライス直添字アクセスは禁止。
   - 金額に浮動小数点（`f32`, `f64`）は使用禁止。ドメイン制約違反はすべて明示的な
     `Result<T, E>` と Newtype で表現する。
+- **Rust 変更時のローカル検証と CI 必須チェック**:
+  - Rust コードを変更したら、コミット前に
+    `cargo test --workspace --all-targets`, `cargo test --doc`,
+    `cargo clippy --workspace --all-targets -- -D warnings`,
+    `cargo fmt --all -- --check` の4コマンドをすべて成功させる。
+  - これらは `.github/workflows/rust.yml` の `cargo test` / `cargo clippy` /
+    `cargo fmt --check` ジョブとして `main` 向け PR
+    の必須チェックに登録されており、 失敗するとマージできない。clippy の警告は
+    `allow` で抑制せずコードを修正する。
 - **Agentic TDD と日本語テスト関数名**:
   - `OpenSpec → 失敗するテスト（Red） → 最小実装（Green） → リファクタリング → rustdoc / doctest`
     の順序を守る。
