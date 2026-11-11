@@ -7,15 +7,26 @@
 ## Requirements
 
 ### Requirement: 勘定科目一覧のLLM参照用日英対訳構造化
-`docs/勘定科目一覧/` 配下の各Markdownファイル（`資産.md`, `負債.md`, `純資産.md`, `収益.md`, `費用.md`, `その他・評価勘定.md`）は、収録されているすべての勘定科目について、日本語科目名・英語の型/列挙子識別子（`UpperCamelCase`）・英語の変数/メソッド識別子（`snake_case`）・会計上の区分や性質を構造化されたMarkdownテーブルとして定義しなければならない（SHALL）。
+
+`docs/勘定科目一覧/` 配下の各Markdownファイル（`資産.md`, `負債.md`,
+`純資産.md`, `収益.md`, `費用.md`,
+`その他・評価勘定.md`）は、収録されているすべての勘定科目について、日本語科目名・英語の型/列挙子識別子（`UpperCamelCase`）・英語の変数/メソッド識別子（`snake_case`）・会計上の区分や性質を構造化されたMarkdownテーブルとして定義しなければならない（SHALL）。
 
 #### Scenario: 勘定科目を扱うコードの実装・テスト作成
-- **WHEN** 開発者またはLLMが勘定科目を表す型・列挙子・変数・メソッドを記述する場合
-- **THEN** `docs/勘定科目一覧/*.md` の対訳テーブルに定義された英語識別子をそのまま使用し、独自の別訳や汎用名（`Item`, `Data`, `Record` 等）を作らない
+
+- **WHEN**
+  開発者またはLLMが勘定科目を表す型・列挙子・変数・メソッドを記述する場合
+- **THEN** `docs/勘定科目一覧/*.md`
+  の対訳テーブルに定義された英語識別子をそのまま使用し、独自の別訳や汎用名（`Item`,
+  `Data`, `Record` 等）を作らない
 
 ### Requirement: 会計基本概念のユビキタス言語定義
+
 勘定科目だけでなく、仕訳、伝票、借方、貸方、仕訳帳、損益計算書、貸借対照表、決算整理などの基本ドメイン概念についても、日本語と英語識別子の標準対訳をドキュメント内で明示しなければならない（SHALL）。
 
 #### Scenario: ドメインモデルの型・API命名
+
 - **WHEN** 複式簿記のドメインモデルや公開APIを設計・実装する場合
-- **THEN** 標準対訳で定義された英語ドメイン用語（`JournalEntry`, `Debit`, `Credit`, `Slip`, `Account`, `GeneralJournal`, `IncomeStatement`, `BalanceSheet` 等）を一貫して使用する
+- **THEN** 標準対訳で定義された英語ドメイン用語（`JournalEntry`, `Debit`,
+  `Credit`, `Slip`, `Account`, `GeneralJournal`, `IncomeStatement`,
+  `BalanceSheet` 等）を一貫して使用する
