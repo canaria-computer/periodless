@@ -1,0 +1,23 @@
+journal_entry = { (detail_line | blank_line)+ ~ EOI }
+
+detail_line = { hspace* ~ (both_sides | debit_only | credit_only) ~ hspace* ~ newline }
+blank_line  = { hspace* ~ newline }
+
+both_sides  = { debit ~ hspace* ~ "/" ~ hspace* ~ credit }
+debit_only  = { debit ~ hspace* ~ "/" }
+credit_only = { "/" ~ hspace* ~ credit }
+
+debit  = { detail }
+credit = { detail }
+
+detail       = ${ account_name ~ hspace+ ~ amount ~ &detail_end }
+account_name = @{ chunk ~ (hspace+ ~ !(amount ~ &detail_end) ~ chunk)* }
+chunk        = @{ (!("/" | hspace | newline) ~ ANY)+ }
+detail_end   = { hspace* ~ ("/" | newline | EOI) }
+
+amount       = @{ ASCII_DIGIT ~ (separator* ~ ASCII_DIGIT)* }
+separator    = { !ASCII_DIGIT ~ amount_ascii }
+amount_ascii = { !("/" | hspace | newline) ~ '\x00'..'\x7f' }
+
+hspace  = _{ !newline ~ WHITE_SPACE }
+newline = { "\r\n" | "\n" | "\u{000b}" | "\u{000c}" | "\r" | "\u{0085}" | "\u{2028}" | "\u{2029}" }
