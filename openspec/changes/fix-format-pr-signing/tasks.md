@@ -35,17 +35,17 @@
 
 ## 3. 統合検証
 
-- [ ] 3.1 未整形のMarkdownを含む作業ブランチから `main`
+- [x] 3.1 未整形のMarkdownを含む作業ブランチから `main`
       向けPRを作成し、`automation/format-pr-<PR番号>`
       の整形用PRが1件作成されること、およびその整形コミットがGitHub上で
       `Verified` と表示されることを確認する
-- [ ] 3.2 整形用PRを作業ブランチへ取り込み、元PRの検証CI（`deno fmt --check` と
+- [x] 3.2 整形用PRを作業ブランチへ取り込み、元PRの検証CI（`deno fmt --check` と
       Rust 3ジョブ）が成功し、`Require signed commits` を有効にした `main`
       へマージ可能な状態（署名検証エラーが出ない状態）になることを確認する
-- [ ] 3.3 元PRで作者が自ら `deno fmt`
+- [x] 3.3 元PRで作者が自ら `deno fmt`
       を適用して整形差分を解消した場合に、次回のワークフロー実行で整形用PRがクローズされ
       `automation/format-pr-<PR番号>`
       ブランチが削除されることを確認する（アクションの `delete-branch`
       挙動の検証）
-- [ ] 3.4 元PRをクローズした場合に `cleanup-on-close`
+- [x] 3.4 元PRをクローズした場合に `cleanup-on-close`
       ジョブが整形用PRをクローズしブランチを削除することを確認し、確認に使った一時PR・ブランチを片付ける
