@@ -97,12 +97,23 @@ Periodless
 | 訂正仕訳 / 取消仕訳 | `CorrectingEntry` / `ReversingEntry` | `correcting_entry` / `reversing_entry` | 既存事実を上書きせず追記で修正する仕訳       |
 | 決算整理仕訳        | `AdjustingEntry`                     | `adjusting_entry`                      | 経過勘定・減価償却・引当金・売上原価等の整理 |
 | 決算振替仕訳        | `ClosingEntry`                       | `closing_entry`                        | 損益勘定・繰越利益剰余金への振替             |
+| 取引日時            | `TransactionAt`                      | `transaction_at`                       | 仕訳が表す取引の発生日時（過去可）           |
+| コミット日時        | `CommittedAt`                        | `committed_at`                         | 台帳への追記日時（直近と等しいか増加）       |
+| 適用通信欄          | `Memo`                               | `memo`                                 | 任意のUTF-8文章                              |
+| 台帳                | `Ledger`                             | `ledger`                               | 追記専用の仕訳記録集約                       |
+| 前レコードハッシュ  | —                                    | `previous_record_hash`                 | 直前レコードのBLAKE3ハッシュ（初期値ゼロ）   |
+| レコードハッシュ    | `RecordHash`                         | `record_hash`                          | 仕訳レコードのBLAKE3ハッシュ（32バイト）     |
 
-### 勘定科目の日英対訳リファレンス
+### 勘定科目の日英対訳・64bit ID リファレンス
 
-個別の勘定科目（日商簿記3級範囲）の英語識別子については、独自の英訳を作らず、必ず以下のファイルに定義された識別子（`UpperCamelCase`
-/ `snake_case`）を使用してください。
+個別の勘定科目（日商簿記3級範囲）の英語識別子および 64bit
+勘定科目ID（`u64`）については、独自の英訳や番号を作らず、必ず以下のファイルに定義された識別子（`UpperCamelCase`
+/ `snake_case`）および ID を使用してください。
 
+- [`docs/勘定科目一覧/README.md`](docs/勘定科目一覧/README.md) : 64bit
+  勘定科目IDのビットレイアウト仕様
+- [`docs/勘定科目一覧/accounts.yaml`](docs/勘定科目一覧/accounts.yaml) :
+  全勘定科目の 64bit ID・流動性スコア・日英識別子 YAML 定義
 - [`docs/勘定科目一覧/資産.md`](docs/勘定科目一覧/資産.md)
 - [`docs/勘定科目一覧/負債.md`](docs/勘定科目一覧/負債.md)
 - [`docs/勘定科目一覧/純資産.md`](docs/勘定科目一覧/純資産.md)
