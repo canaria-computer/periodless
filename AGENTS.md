@@ -16,7 +16,10 @@ Rust 製会計コアライブラリです。 AI
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) :
   **コーディング規約・基本用語の日英対訳・Git/PRルールの正式リファレンス**
 - `docs/勘定科目一覧/` : **勘定科目の英語識別子（`UpperCamelCase` /
-  `snake_case`）の唯一の真実の源泉**
+  `snake_case`）および 64bit 勘定科目ID（`u64`）の唯一の真実の源泉**
+  - [`README.md`](docs/勘定科目一覧/README.md) /
+    [`accounts.yaml`](docs/勘定科目一覧/accounts.yaml) : 64bit ID
+    ビットレイアウト仕様と YAML 定義
   - [`資産.md`](docs/勘定科目一覧/資産.md) /
     [`負債.md`](docs/勘定科目一覧/負債.md) /
     [`純資産.md`](docs/勘定科目一覧/純資産.md) /
