@@ -3,6 +3,7 @@
 //! 一回の解析に渡された入力全体を一つの仕訳として扱い、`借方明細 / 貸方明細`
 //! 形式の明細行を借方明細列と貸方明細列へ分解する。構文のみを扱い、貸借一致・
 //! 科目の重複・科目マスターへの登録状況・金額の値域といった意味検証は行わない。
+//! 意味検証は [`JournalEntryDescription::validate`] が別の責務として行う。
 //!
 //! # Examples
 //!
@@ -25,6 +26,6 @@ mod printer;
 mod syntax_error;
 
 pub use amount_overflow::AmountOverflow;
-pub use description::{DescribedDetail, JournalEntryDescription};
+pub use description::{DescribedDetail, DescribedLine, JournalEntryDescription};
 pub use printer::JournalEntryPrinter;
 pub use syntax_error::{SyntaxError, SyntaxViolation};
